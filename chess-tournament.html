@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chess Tournament Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f5f4;
+    --color-bg-tertiary: #f0efed;
+    --color-bg-success: #eaf3de;
+    --color-bg-danger: #fcebeb;
+    --color-bg-info: #e6f1fb;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #6b6b67;
+    --color-text-tertiary: #a3a39e;
+    --color-text-success: #27500a;
+    --color-text-danger: #791f1f;
+    --color-text-info: #0c447c;
+    --color-border-primary: rgba(26,26,24,0.4);
+    --color-border-secondary: rgba(26,26,24,0.3);
+    --color-border-tertiary: rgba(26,26,24,0.15);
+    --color-border-success: rgba(57,113,17,0.4);
+    --color-border-danger: rgba(163,45,45,0.4);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg-primary: #1c1c1a;
+      --color-bg-secondary: #262624;
+      --color-bg-tertiary: #2e2e2b;
+      --color-bg-success: #173404;
+      --color-bg-danger: #501313;
+      --color-bg-info: #042c53;
+      --color-text-primary: #f0efed;
+      --color-text-secondary: #a3a39e;
+      --color-text-tertiary: #6b6b67;
+      --color-text-success: #c0dd97;
+      --color-text-danger: #f09595;
+      --color-text-info: #b5d4f4;
+      --color-border-primary: rgba(240,239,237,0.4);
+      --color-border-secondary: rgba(240,239,237,0.3);
+      --color-border-tertiary: rgba(240,239,237,0.15);
+      --color-border-success: rgba(144,198,89,0.4);
+      --color-border-danger: rgba(240,149,149,0.4);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    padding: 1.5rem 1rem;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo i { font-size: 26px; color: var(--color-text-primary); }
+  .logo-text { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+  .logo-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 3px;
+    background: var(--color-bg-secondary);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: var(--font-sans);
+  }
+  .tab.active {
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border: 0.5px solid var(--color-border-secondary);
+  }
+  .tab:hover:not(.active) { color: var(--color-text-primary); background: rgba(0,0,0,.04); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--color-bg-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 12px;
+  }
+
+  /* Section label */
+  .slbl {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .stat {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 1rem .75rem;
+    text-align: center;
+  }
+  .stat-val { font-size: 26px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-lbl { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
+
+  /* Player rows */
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .player-row:last-child { border-bottom: none; }
+
+  /* Avatar */
+  .av {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .pname {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Badges */
+  .bdg {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .bdg-ok { background: var(--color-bg-success); color: var(--color-text-success); }
+  .bdg-nu { background: var(--color-bg-secondary); color: var(--color-text-secondary); }
+
+  /* Add form */
+  .add-form { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .add-form input { flex: 1; min-width: 0; }
+
+  /* Inputs */
+  input[type="text"] {
+    height: 38px;
+    padding: 0 12px;
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-family: var(--font-sans);
+    outline: none;
+    transition: border-color .15s;
+    width: 100%;
+  }
+  input[type="text"]:focus { border-color: var(--color-border-primary); box-shadow: 0 0 0 3px rgba(26,26,24,0.06); }
+  input[type="text"]::placeholder { color: var(--color-text-tertiary); }
+
+  /* Buttons */
+  .btn-p {
+    background: var(--color-text-primary);
+    color: var(--color-bg-primary);
+    border: none;
+    padding: 0 16px;
+    height: 38px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-sans);
+    transition: opacity .15s;
+  }
+  .btn-p:hover { opacity: .85; }
+  .btn-p:active { transform: scale(.98); }
+
+  .btn-s {
+    background: none;
+    border: 0.5px solid var(--color-border-secondary);
+    padding: 0 14px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-sans);
+    transition: background .15s;
+  }
+  .btn-s:hover { background: var(--color-bg-secondary); }
+
+  .btn-dx {
+    background: none;
+    border: none;
+    color: var(--color-text-danger);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .btn-dx:hover { background: var(--color-bg-danger); }
+
+  /* Round pairings */
+  .rnd-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 6px;
+  }
+  .rnd-ttl { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+
+  .pair-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    flex-wrap: wrap;
+  }
+  .pair-row:last-child { border-bottom: none; }
+
+  .pair-p {
+    flex: 1;
+    font-size: 13px;
+    color: var(--color-text-primary);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pair-p.dim { color: var(--color-text-secondary); }
+
+  .pair-vs { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); flex-shrink: 0; }
+
+  /* Result buttons */
+  .res-btns { display: flex; gap: 3px; flex-shrink: 0; }
+  .rb {
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: none;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all .1s;
+    min-width: 34px;
+    text-align: center;
+    font-family: var(--font-sans);
+  }
+  .rb:hover { background: var(--color-bg-secondary); }
+
+  .result-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    flex-shrink: 0;
+    background: var(--color-bg-secondary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  /* Standings */
+  .stand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .stand-row:last-child { border-bottom: none; }
+
+  .rnk { width: 22px; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-align: center; flex-shrink: 0; }
+
+  .sc { font-size: 14px; font-weight: 500; min-width: 30px; text-align: right; flex-shrink: 0; }
+  .scbw { flex: 1; height: 5px; background: var(--color-bg-secondary); border-radius: 3px; overflow: hidden; min-width: 40px; }
+  .scb { height: 100%; background: var(--color-text-primary); border-radius: 3px; transition: width .3s; }
+
+  /* History chips */
+  .chips { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 3px; }
+  .chip { font-size: 10px; padding: 2px 6px; border-radius: 10px; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); background: var(--color-bg-secondary); }
+  .chip.w { background: var(--color-bg-success); border-color: transparent; color: var(--color-text-success); }
+  .chip.l { background: var(--color-bg-danger); border-color: transparent; color: var(--color-text-danger); }
+  .chip.d { background: var(--color-bg-secondary); border-color: var(--color-border-primary); color: var(--color-text-primary); }
+
+  /* Notice */
+  .notice {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 11px 15px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  /* Action row */
+  .act-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 2rem 0; color: var(--color-text-secondary); font-size: 13px; }
+
+  /* Final banner */
+  .final-banner {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    background: var(--color-bg-primary);
+  }
+  .final-crown { font-size: 36px; margin-bottom: 8px; }
+  .final-title { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 6px; }
+  .final-winner { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .final-score { font-size: 13px; color: var(--color-text-secondary); }
+  .final-podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 1.25rem; }
+  .podium-card { background: var(--color-bg-secondary); border-radius: var(--radius-md); padding: .75rem .5rem; text-align: center; }
+  .podium-card.top { border: 0.5px solid var(--color-border-secondary); }
+  .podium-pos { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .podium-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .podium-pts { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  /* Responsive */
+  @media (max-width: 400px) {
+    body { padding: 1rem .75rem; }
+    .tab i { font-size: 15px; }
+    .tab span { display: none; }
+    .logo-sub { display: none; }
+    .stats-grid { gap: 6px; }
+    .stat-val { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">
+      <i class="ti ti-chess"></i>
+      <div>
+        <div class="logo-text">Tournament Manager</div>
+        <div class="logo-sub">Round Robin</div>
+      </div>
+    </div>
+    <button class="btn-s" id="resetBtn">
+      <i class="ti ti-refresh"></i> New tournament
+    </button>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" onclick="switchTab('players')" role="tab">
+      <i class="ti ti-users"></i> <span>Players</span>
+    </button>
+    <button class="tab" onclick="switchTab('pairings')" role="tab">
+      <i class="ti ti-layout-grid"></i> <span>Pairings</span>
+    </button>
+    <button class="tab" onclick="switchTab('standings')" role="tab">
+      <i class="ti ti-trophy"></i> <span>Standings</span>
+    </button>
+  </div>
+
+  <!-- Players panel -->
+  <div id="pp" class="panel active">
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-val" id="sP">0</div><div class="stat-lbl">Players</div></div>
+      <div class="stat"><div class="stat-val" id="sR">0</div><div class="stat-lbl">Rounds</div></div>
+      <div class="stat"><div class="stat-val" id="sG">0</div><div class="stat-lbl">Games</div></div>
+    </div>
+    <div class="slbl">Add player</div>
+    <div class="add-form">
+      <input id="pInp" type="text" placeholder="Player name…" onkeydown="if(event.key==='Enter')addP()" maxlength="28" autocomplete="off">
+      <button class="btn-p" onclick="addP()"><i class="ti ti-plus"></i> Add</button>
+    </div>
+    <div class="slbl">Roster</div>
+    <div class="card" id="roster"><div class="empty">No players yet — add at least 2 to begin.</div></div>
+    <div class="act-row">
+      <button class="btn-p" id="startBtn" onclick="startT()" style="display:none">
+        <i class="ti ti-player-play"></i> Generate pairings
+      </button>
+    </div>
+  </div>
+
+  <!-- Pairings panel -->
+  <div id="pa" class="panel">
+    <div class="notice" id="pNote"></div>
+    <div id="rounds"></div>
+    <div class="act-row" id="pAct" style="display:none">
+      <button class="btn-p" onclick="addRound()"><i class="ti ti-plus"></i> Next round</button>
+    </div>
+  </div>
+
+  <!-- Standings panel -->
+  <div id="ps" class="panel">
+    <div class="notice" id="sNote"></div>
+    <div id="finalBanner"></div>
+    <div class="card" id="stand"></div>
+  </div>
+
+</div>
+
+<script>
+  let players = [], rounds = [], started = false, tournamentOver = false;
+  const CLR = ['#378ADD','#1D9E75','#D85A30','#D4537E','#7F77DD','#BA7517','#639922','#888780','#E24B4A','#0F6E56','#993C1D','#533b8b'];
+
+  function ini(n) { return n.split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2) || '?'; }
+  function ci(n) { let h = 0; for (let c of n) h = (h * 31 + c.charCodeAt(0)) % CLR.length; return h; }
+  function av(name, sz) {
+    const i = ci(name);
+    return `<div class="av" style="width:${sz}px;height:${sz}px;background:${CLR[i]}22;color:${CLR[i]};font-size:${Math.floor(sz * .35)}px">${ini(name)}</div>`;
+  }
+
+  function switchTab(t) {
+    ['players','pairings','standings'].forEach((x, i) => {
+      document.querySelectorAll('.tab')[i].classList.toggle('active', x === t);
+    });
+    ['pp','pa','ps'].forEach((id, i) => {
+      document.getElementById(id).classList.toggle('active', ['players','pairings','standings'][i] === t);
+    });
+    if (t === 'standings') renderS();
+    if (t === 'pairings') renderP();
+  }
+
+  function addP() {
+    const inp = document.getElementById('pInp');
+    const name = inp.value.trim();
+    if (!name || players.find(p => p.name.toLowerCase() === name.toLowerCase())) return inp.value = '';
+    players.push({ name, id: Date.now() });
+    inp.value = '';
+    renderR();
+  }
+
+  function removeP(id) {
+    if (started) return;
+    players = players.filter(p => p.id !== id);
+    renderR();
+  }
+
+  function renderR() {
+    const el = document.getElementById('roster');
+    const n = players.length;
+    document.getElementById('sP').textContent = n;
+    document.getElementById('sR').textContent = n > 1 ? n + (n % 2 === 0 ? -1 : 0) : 0;
+    document.getElementById('sG').textContent = n > 1 ? Math.floor(n * (n - 1) / 2) : 0;
+    document.getElementById('startBtn').style.display = n >= 2 && !started ? 'inline-flex' : 'none';
+    if (!n) { el.innerHTML = '<div class="empty">No players yet — add at least 2 to begin.</div>'; return; }
+    el.innerHTML = players.map(p =>
+      `<div class="player-row">${av(p.name, 36)}<span class="pname">${p.name}</span>${!started ? `<button class="btn-dx" onclick="removeP(${p.id})" title="Remove">&times;</button>` : ''}</div>`
+    ).join('');
+  }
+
+  function startT() {
+    if (players.length < 2) return;
+    started = true; rounds = []; tournamentOver = false;
+    document.getElementById('startBtn').style.display = 'none';
+    genRound(); renderR(); switchTab('pairings');
+  }
+
+  function genRound() {
+    const list = [...players]; let bye = null;
+    if (list.length % 2 !== 0) { const bi = rounds.length % list.length; bye = list.splice(bi, 1)[0]; }
+    const rn = rounds.length + 1, ev = list.length, pairs = [];
+    if (rounds.length === 0) {
+      for (let i = 0; i < ev / 2; i++) pairs.push({ w: list[i], b: list[ev - 1 - i], r: null });
+    } else {
+      const rot = [...list], fixed = rot.shift(), arr = [fixed, ...rot];
+      for (let i = 0; i < rounds.length; i++) { arr.splice(1, 0, arr.pop()); }
+      for (let i = 0; i < arr.length / 2; i++) {
+        pairs.push(rn % 2 === 0 ? { w: arr[arr.length - 1 - i], b: arr[i], r: null } : { w: arr[i], b: arr[arr.length - 1 - i], r: null });
+      }
+    }
+    rounds.push({ num: rn, pairs, bye });
+    renderP();
+  }
+
+  function setR(ri, pi, res) {
+    if (rounds[ri].pairs[pi].r !== null) return;
+    rounds[ri].pairs[pi].r = res;
+    checkOver();
+    renderP();
+  }
+
+  function allIn(rnd) { return rnd.pairs.every(p => p.r !== null); }
+
+  function checkOver() {
+    const maxR = players.length + (players.length % 2 === 0 ? -1 : 0);
+    if (rounds.length >= maxR && rounds.every(r => allIn(r))) tournamentOver = true;
+  }
+
+  function addRound() { genRound(); }
+
+  function renderP() {
+    const cont = document.getElementById('rounds'), note = document.getElementById('pNote'), act = document.getElementById('pAct');
+    if (!started) { cont.innerHTML = ''; note.style.display = 'none'; act.style.display = 'none'; return; }
+    const maxR = players.length + (players.length % 2 === 0 ? -1 : 0);
+    const done = rounds.length >= maxR;
+    note.style.display = 'none';
+
+    cont.innerHTML = rounds.map((rnd, ri) => {
+      const cmp = allIn(rnd);
+      return `<div class="card">
+        <div class="rnd-hdr">
+          <span class="rnd-ttl">Round ${rnd.num}</span>
+          <span class="bdg ${cmp ? 'bdg-ok' : 'bdg-nu'}">${cmp ? 'Complete' : 'In progress'}</span>
+        </div>
+        ${rnd.bye ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><i class="ti ti-coffee"></i> Bye: <b style="font-weight:500">${rnd.bye.name}</b></div>` : ''}
+        ${rnd.pairs.map((p, pi) => {
+          if (p.r !== null) {
+            const label = p.r === 'white' ? '1 – 0' : p.r === 'black' ? '0 – 1' : '½ – ½';
+            return `<div class="pair-row">
+              ${av(p.w.name, 28)}<span class="pair-p dim">${p.w.name}</span>
+              <span class="pair-vs">vs</span>
+              <span class="pair-p dim" style="text-align:right">${p.b.name}</span>${av(p.b.name, 28)}
+              <span class="result-label">${label}</span>
+            </div>`;
+          }
+          return `<div class="pair-row">
+            ${av(p.w.name, 28)}<span class="pair-p">${p.w.name}</span>
+            <span class="pair-vs">vs</span>
+            <span class="pair-p" style="text-align:right">${p.b.name}</span>${av(p.b.name, 28)}
+            <div class="res-btns">
+              <button class="rb" onclick="setR(${ri},${pi},'white')" title="${p.w.name} wins">1-0</button>
+              <button class="rb" onclick="setR(${ri},${pi},'draw')" title="Draw">½</button>
+              <button class="rb" onclick="setR(${ri},${pi},'black')" title="${p.b.name} wins">0-1</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('');
+
+    const last = rounds[rounds.length - 1], lastDone = allIn(last);
+    if (tournamentOver) {
+      note.innerHTML = '<i class="ti ti-flag-check"></i> Tournament complete! View the final standings in the <b style="font-weight:500">Standings</b> tab.';
+      note.style.display = 'block';
+      act.style.display = 'none';
+    } else {
+      act.style.display = lastDone && !done ? 'flex' : 'none';
+    }
+  }
+
+  function getScores() {
+    const sc = {}, gp = {};
+    players.forEach(p => { sc[p.id] = 0; gp[p.id] = 0; });
+    rounds.forEach(rnd => {
+      if (rnd.bye) sc[rnd.bye.id] += 1;
+      rnd.pairs.forEach(p => {
+        if (p.r === null) return;
+        gp[p.w.id] = (gp[p.w.id] || 0) + 1; gp[p.b.id] = (gp[p.b.id] || 0) + 1;
+        if (p.r === 'white') sc[p.w.id] += 1;
+        else if (p.r === 'black') sc[p.b.id] += 1;
+        else { sc[p.w.id] += .5; sc[p.b.id] += .5; }
+      });
+    });
+    return { sc, gp };
+  }
+
+  function getHist() {
+    const h = {}; players.forEach(p => { h[p.id] = []; });
+    rounds.forEach(rnd => {
+      if (rnd.bye) h[rnd.bye.id].push('bye');
+      rnd.pairs.forEach(p => {
+        if (p.r === null) return;
+        if (p.r === 'white') { h[p.w.id].push('W'); h[p.b.id].push('L'); }
+        else if (p.r === 'black') { h[p.w.id].push('L'); h[p.b.id].push('W'); }
+        else { h[p.w.id].push('D'); h[p.b.id].push('D'); }
+      });
+    });
+    return h;
+  }
+
+  function renderS() {
+    const el = document.getElementById('stand'), note = document.getElementById('sNote'), banner = document.getElementById('finalBanner');
+    if (!started) { note.textContent = 'Start the tournament to see standings.'; note.style.display = 'block'; el.innerHTML = ''; banner.innerHTML = ''; return; }
+    note.style.display = 'none';
+    const { sc, gp } = getScores(), hist = getHist();
+    const maxR = players.length + (players.length % 2 === 0 ? -1 : 0);
+    const sorted = [...players].sort((a, b) => sc[b.id] - sc[a.id] || (gp[b.id] - gp[a.id]));
+    const fmt = p => sc[p.id] % 1 === 0 ? sc[p.id] : sc[p.id].toFixed(1);
+
+    if (tournamentOver) {
+      const [w, s, t] = sorted;
+      const maxPts = players.length - 1 + (players.length % 2 !== 0 ? 1 : 0);
+      banner.innerHTML = `<div class="final-banner">
+        <div class="final-crown"><i class="ti ti-crown" style="font-size:32px;color:#8B6914"></i></div>
+        <div class="final-title">Tournament Champion</div>
+        <div class="final-winner">${w.name}</div>
+        <div class="final-score">${fmt(w)} / ${maxPts} points</div>
+        ${sorted.length > 1 ? `<div class="final-podium">
+          ${s ? `<div class="podium-card"><div class="podium-pos">2nd</div><div class="podium-name">${s.name}</div><div class="podium-pts">${fmt(s)} pts</div></div>` : '<div></div>'}
+          <div class="podium-card top"><div class="podium-pos" style="color:#8B6914">1st</div><div class="podium-name">${w.name}</div><div class="podium-pts">${fmt(w)} pts</div></div>
+          ${t ? `<div class="podium-card"><div class="podium-pos">3rd</div><div class="podium-name">${t.name}</div><div class="podium-pts">${fmt(t)} pts</div></div>` : '<div></div>'}
+        </div>` : ''}
+      </div>`;
+    } else {
+      banner.innerHTML = '';
+    }
+
+    el.innerHTML = sorted.map((p, i) => {
+      const pct = maxR > 0 ? Math.round((sc[p.id] / maxR) * 100) : 0;
+      const h = hist[p.id] || [];
+      const chips = h.map(r => `<span class="chip ${r === 'W' ? 'w' : r === 'L' ? 'l' : r === 'D' ? 'd' : ''}">${r}</span>`).join('');
+      return `<div class="stand-row">
+        <span class="rnk">${i === 0 && tournamentOver ? '<i class="ti ti-crown" style="font-size:14px;color:#8B6914"></i>' : i + 1}</span>
+        ${av(p.name, 34)}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:${i === 0 && tournamentOver ? '500' : '400'};color:var(--color-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
+          <div class="chips">${chips || '<span style="font-size:11px;color:var(--color-text-secondary)">No games yet</span>'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <div class="scbw"><div class="scb" style="width:${pct}%"></div></div>
+          <span class="sc">${fmt(p)}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('resetBtn').onclick = () => {
+    if (!confirm('Start a new tournament? All data will be lost.')) return;
+    players = []; rounds = []; started = false; tournamentOver = false;
+    renderR(); renderP(); renderS(); switchTab('players');
+  };
+
+  renderR();
+</script>
+</body>
+</html>
